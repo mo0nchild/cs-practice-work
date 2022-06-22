@@ -12,7 +12,7 @@ namespace PracticeWork.Objects
 
         private Point cursor_position = new(0, 0);
 
-        private const int speed = 10;
+        private const int speed = 5;
 
         [Engine.EngineObjectConstructorSelecter]
         public MainPlayer(string object_name) : base(object_name)
@@ -48,7 +48,7 @@ namespace PracticeWork.Objects
 
         public override void MouseClickOperation(MouseEventArgs mouse_arg)
         {
-            
+
         }
     }
 }

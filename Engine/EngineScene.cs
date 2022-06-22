@@ -86,13 +86,13 @@ namespace PracticeWork.Engine
 
             this.scene_initial_children.ForEach(delegate(EngineObjectWithIncludes target_object) 
             {
+                this.SetSceneObjectConfig(target_object);
                 target_object.IncludeChildren.ForEach(delegate(string include_name)
                 {
                     Engine.EngineObject? required_object = scene_instance.GetSceneObject(include_name);
                     if (required_object != null) target_object.Object.ConnectLinkToChildren(required_object);
                 });
                 target_object.Object.ConnectLinkToScene(scene_instance);
-                this.SetSceneObjectConfig(target_object);
             });
             return scene_instance;
         }
@@ -134,8 +134,11 @@ namespace PracticeWork.Engine
         public EngineObject? GetSceneObject(string required_object_name) => this.registred_scene_children.Find(
             (Engine.EngineObject target) => target.ObjectName == required_object_name);
 
-        public List<EngineObject> GetSceneObjects<TObject>() where TObject: Engine.EngineObject 
-            => this.registred_scene_children.FindAll((target) => target.GetType() == typeof(TObject));
+        //public List<EngineObject> GetSceneObjects<TObject>() where TObject: Engine.EngineObject 
+        //    => this.registred_scene_children.FindAll((target) => target.GetType() == typeof(TObject));
+
+        public List<EngineObject> GetSceneObjects<TObject>() where TObject : Engine.EngineObject
+            => this.registred_scene_children.FindAll((target) => (target as TObject) != null);
 
         public EngineSceneConfiguration? GetSceneConfiguration(string object_name, string config_name)
         {

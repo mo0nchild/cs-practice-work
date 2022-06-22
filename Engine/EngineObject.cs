@@ -23,15 +23,15 @@ namespace PracticeWork.Engine
         protected  Engine.IEngineScene? LinkedScene { get; private set; } = null;
         private List<Engine.EngineObject> children_list = new List<Engine.EngineObject>(0);
 
-        [Engine.EngineObjectInportConfiguration("ObjectGeometry")]
-        public System.Drawing.Size Geometry { get; protected set; } = new Size(10, 10);
-
         [Engine.EngineObjectInportConfiguration("ObjectPosition")]
         public System.Drawing.Point Position { get; private set; } = new Point(0, 0);
 
-        public Engine.EngineObject? ParentObject { get; set; }
+        [Engine.EngineObjectInportConfiguration("ObjectGeometry")]
+        public System.Drawing.Size Geometry { get; set; } = new Size(10, 10);
+
+        public Engine.EngineObject? ParentObject { get; set; } = null;
         public System.String ObjectName { get; init; }
-        protected Guid ObjectGuid { get; init; } = Guid.NewGuid();
+        protected System.Guid ObjectGuid { get; init; } = Guid.NewGuid();
 
         protected EngineObject(string object_name) : base() => this.ObjectName = object_name;
 
@@ -39,6 +39,9 @@ namespace PracticeWork.Engine
         {
             if (children_list.Find((target_object) => target_object.Equals(new_including_child)) != null)
                 throw new Exception("Children allready contains in object");
+
+            if(new_including_child.Geometry.Equals(new Size(10, 10))) 
+                new_including_child.Geometry = this.Geometry;
 
             new_including_child.SetPosition(new Point(this.Position.X, -this.Position.Y));
             new_including_child.ParentObject = this;
