@@ -13,7 +13,7 @@ namespace PracticeWork.Engine
         List<EngineObject> GetSceneObjects<TObject>() where TObject : EngineObject;
         EngineObject? GetSceneObject(string required_object_name);
         EngineSceneConfiguration? GetSceneConfiguration(string object_name, string config_name);
-        void RunSceneHandler(double update_delay_milliseconds); 
+        void RunSceneHandler(double update_delay_milliseconds);
     }
 
     public sealed class EngineSceneBuilder : System.Object
@@ -65,10 +65,10 @@ namespace PracticeWork.Engine
             if (object_config_list.Count == 0) return;
             foreach (System.Reflection.PropertyInfo infos in target_object.Object.GetType().GetProperties())
             {
-                var property_attr = infos.GetCustomAttributes(typeof(Engine.EngineObjectInportConfiguration), true);
+                var property_attr = infos.GetCustomAttributes(typeof(Engine.EngineObjectImportConfiguration), true);
                 if (property_attr.Length == 0) continue;
 
-                var property_name = (property_attr[0] as EngineObjectInportConfiguration)!.PropertyName;
+                var property_name = (property_attr[0] as EngineObjectImportConfiguration)!.PropertyName;
                 var property_value = object_config_list[0].Value.Find(config => config.ConfigKey == property_name);
 
                 if(property_value != null)
@@ -103,23 +103,24 @@ namespace PracticeWork.Engine
         private readonly List<Engine.EngineObject> registred_scene_children;
         private readonly Dictionary<string, List<EngineSceneConfiguration>> registred_scene_configuration;
         private readonly Win::Forms.Panel panel_node_instance;
-        public double UpdateDelay { get; init; } = 500.0;
-        public string SceneName { get; init; } = "Scene";
+
+        public System.Double UpdateDelay { get; init; } = 500.0;
+        public System.String SceneName { get; init; } = "Scene";
 
         public EngineScene(Win::Forms.Panel panel, List<EngineObject> scene_children,
             Dictionary<string, List<EngineSceneConfiguration>> scene_configuration)
         {
             (this.registred_scene_children, this.registred_scene_configuration, this.panel_node_instance) 
                 = (scene_children, scene_configuration, panel);
-            InitializeSceneHandling();
+            this.InitializeSceneHandling();
         }
 
         private void InitializeSceneHandling()
         {
             this.registred_scene_children.Where((EngineObject target_object) => target_object is EngineInputController)
-                .ToList().ForEach(delegate (EngineObject selected_object) 
+                .ToList().ForEach(delegate (EngineObject selected_object)
                 {
-                    EngineInputController? controller = (selected_object as EngineInputController);  
+                    EngineInputController? controller = (selected_object as EngineInputController);
                     (this.panel_node_instance as Control).KeyDown += (sender, arg) => controller?.KeyInputOperation(arg);
                     (this.panel_node_instance as Control).KeyUp += (sender, arg) => controller?.KeyReleaseOperation(arg);
 
@@ -127,15 +128,17 @@ namespace PracticeWork.Engine
                     (this.panel_node_instance as Control).MouseDown += (sender, arg) => controller?.MouseClickOperation(arg);
                 });
 
-            this.registred_scene_children.ForEach((EngineObject target_object)
-                => (this.panel_node_instance.Paint) += (sender, arg) => target_object?.UpdateOperation(arg.Graphics));
+            //this.registred_scene_children.ForEach((EngineObject target_object)
+            //    => (this.panel_node_instance.Paint) += (sender, arg) => { target_object?.UpdateOperation(arg.Graphics); });
+
+            this.panel_node_instance.Paint += delegate (object? sender, PaintEventArgs arg)
+            {
+                this.registred_scene_children.ForEach((EngineObject target_object) => target_object?.UpdateOperation(arg.Graphics));
+            };
         }
 
         public EngineObject? GetSceneObject(string required_object_name) => this.registred_scene_children.Find(
             (Engine.EngineObject target) => target.ObjectName == required_object_name);
-
-        //public List<EngineObject> GetSceneObjects<TObject>() where TObject: Engine.EngineObject 
-        //    => this.registred_scene_children.FindAll((target) => target.GetType() == typeof(TObject));
 
         public List<EngineObject> GetSceneObjects<TObject>() where TObject : Engine.EngineObject
             => this.registred_scene_children.FindAll((target) => (target as TObject) != null);
@@ -156,6 +159,8 @@ namespace PracticeWork.Engine
             {
                 this.panel_node_instance.Focus();
                 this.panel_node_instance.Invalidate();
+                System.GC.Collect();
+                System.GC.WaitForPendingFinalizers();
             });
             this.registred_scene_children.ForEach((target_record) => target_record.InitialOperation(this));
             scene_handling_timer.Start();

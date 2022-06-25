@@ -12,10 +12,10 @@ namespace PracticeWork.Engine
     public sealed class EngineObjectConstructorSelecter : System.Attribute { }
 
     [System.AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public sealed class EngineObjectInportConfiguration : System.Attribute 
+    public sealed class EngineObjectImportConfiguration : System.Attribute 
     {
         public string PropertyName { get; private init; }
-        public EngineObjectInportConfiguration(string property_name) => (this.PropertyName) = (property_name); 
+        public EngineObjectImportConfiguration(string property_name) => (this.PropertyName) = (property_name); 
     }
 
     public abstract class EngineObject : System.Object
@@ -23,10 +23,10 @@ namespace PracticeWork.Engine
         protected  Engine.IEngineScene? LinkedScene { get; private set; } = null;
         private List<Engine.EngineObject> children_list = new List<Engine.EngineObject>(0);
 
-        [Engine.EngineObjectInportConfiguration("ObjectPosition")]
-        public System.Drawing.Point Position { get; private set; } = new Point(0, 0);
+        [Engine.EngineObjectImportConfiguration("ObjectPosition")]
+        public System.Drawing.Point Position { get; protected set; } = new Point(0, 0);
 
-        [Engine.EngineObjectInportConfiguration("ObjectGeometry")]
+        [Engine.EngineObjectImportConfiguration("ObjectGeometry")]
         public System.Drawing.Size Geometry { get; set; } = new Size(10, 10);
 
         public Engine.EngineObject? ParentObject { get; set; } = null;
