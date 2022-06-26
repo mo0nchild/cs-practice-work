@@ -49,16 +49,35 @@ namespace PracticeWork.Engine
             this.children_list.Add(new_including_child);
         }
 
+        public Engine.EngineObject? GetChildrenObject(string object_name)
+            => this.children_list.Find((EngineObject target_object) => target_object.ObjectName == object_name);
+
+        public List<EngineObject> GetChildrenObjects<TObject>() where TObject : EngineObject
+            => this.children_list.FindAll((EngineObject target_object) => (target_object as TObject) != null);
+
         public void ConnectLinkToScene(Engine.IEngineScene scene_instance_link)
         {
             if (this.LinkedScene is not null) throw new Exception("Scene link already set");
             this.LinkedScene = scene_instance_link;
         }
 
+        private object locker_object = new();
         public void SetPosition(System.Drawing.Point direction) 
         {
-            this.Position = new Point(Position.X + direction.X, Position.Y - direction.Y);
-            children_list?.ForEach((Engine.EngineObject obj) => obj.SetPosition(direction));
+            lock(locker_object)
+            {
+                this.Position = new Point(Position.X + direction.X, Position.Y - direction.Y);
+                children_list?.ForEach((Engine.EngineObject obj) => obj.SetPosition(direction));
+            } 
+        }
+
+        public void SetPosition(int pos_x, int pos_y)
+        {
+            lock (locker_object)
+            {
+                this.Position = new Point(pos_x, pos_y);
+                children_list?.ForEach((Engine.EngineObject obj) => obj.SetPosition(pos_x, pos_y));
+            }
         }
 
         public abstract void UpdateOperation(System.Drawing.Graphics graphic);
@@ -77,10 +96,11 @@ namespace PracticeWork.Engine
     {
         protected EngineInputController(string object_name) : base(object_name) { }
 
-        public abstract void MouseMoveOperation(Win::Forms.MouseEventArgs mouse_arg);
-        public abstract void MouseClickOperation(Win::Forms.MouseEventArgs mouse_arg);
+        public virtual void MouseMoveOperation(Win::Forms.MouseEventArgs mouse_arg) { return; }
+        public virtual void MouseInputOperation(Win::Forms.MouseEventArgs mouse_arg) { return; }
+        public virtual void MouseReleaseOperation(Win::Forms.MouseEventArgs mouse_arg) { return; }
 
-        public abstract void KeyInputOperation(Win::Forms.KeyEventArgs key_arg);
-        public abstract void KeyReleaseOperation(Win::Forms.KeyEventArgs key_arg);
+        public virtual void KeyInputOperation(Win::Forms.KeyEventArgs key_arg) { return; }
+        public virtual void KeyReleaseOperation(Win::Forms.KeyEventArgs key_arg) { return; }
     }
 }

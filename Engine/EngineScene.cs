@@ -32,7 +32,7 @@ namespace PracticeWork.Engine
             if (this.scene_configuration.ContainsKey(object_name) == true)
             {
                 if (this.scene_configuration[object_name].Find((target) => target.ConfigKey == key) != null)
-                    throw new Exception("Connfiguration allready set");
+                    throw new Exception("Configuration allready set: " + object_name + "; " + key);
                 this.scene_configuration[object_name].Add(new EngineSceneConfiguration(key, typeof(TConfig), value!));
             }    
             else this.scene_configuration.Add(object_name, new() { new(key, typeof(TConfig), value!) });
@@ -115,6 +115,7 @@ namespace PracticeWork.Engine
             this.InitializeSceneHandling();
         }
 
+        private object painter_locker = new();
         private void InitializeSceneHandling()
         {
             this.registred_scene_children.Where((EngineObject target_object) => target_object is EngineInputController)
@@ -125,7 +126,8 @@ namespace PracticeWork.Engine
                     (this.panel_node_instance as Control).KeyUp += (sender, arg) => controller?.KeyReleaseOperation(arg);
 
                     (this.panel_node_instance as Control).MouseMove += (sender, arg) => controller?.MouseMoveOperation(arg);
-                    (this.panel_node_instance as Control).MouseDown += (sender, arg) => controller?.MouseClickOperation(arg);
+                    (this.panel_node_instance as Control).MouseDown += (sender, arg) => controller?.MouseInputOperation(arg);
+                    (this.panel_node_instance as Control).MouseUp += (sender, arg) => controller?.MouseReleaseOperation(arg);
                 });
 
             //this.registred_scene_children.ForEach((EngineObject target_object)
@@ -133,7 +135,10 @@ namespace PracticeWork.Engine
 
             this.panel_node_instance.Paint += delegate (object? sender, PaintEventArgs arg)
             {
-                this.registred_scene_children.ForEach((EngineObject target_object) => target_object?.UpdateOperation(arg.Graphics));
+                this.registred_scene_children.ForEach((EngineObject target_object) =>
+                {
+                    lock(this.painter_locker) { target_object?.UpdateOperation(arg.Graphics); }
+                });
             };
         }
 
@@ -152,13 +157,17 @@ namespace PracticeWork.Engine
             else throw new Exception("Cannot find required object");
         }
 
+        private object timer_locker = new();
         public void RunSceneHandler(double update_delay_milliseconds)
         {
             Win::Forms.Timer scene_handling_timer = new() { Interval = (int)update_delay_milliseconds };
             scene_handling_timer.Tick += new EventHandler(delegate (object? sender, EventArgs args)
             {
-                this.panel_node_instance.Focus();
-                this.panel_node_instance.Invalidate();
+                lock (this.timer_locker)
+                {
+                    this.panel_node_instance.Focus();
+                    this.panel_node_instance.Invalidate();
+                }
                 System.GC.Collect();
                 System.GC.WaitForPendingFinalizers();
             });

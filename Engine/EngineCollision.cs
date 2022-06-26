@@ -13,6 +13,9 @@ namespace PracticeWork.Engine
         [Engine.EngineObjectImportConfiguration("BorderDraw")]
         public System.Boolean BorderDraw { get; protected set; } = false;
 
+        [Engine.EngineObjectImportConfiguration("TypesForCollide")]
+        public List<System.Type>? CollisionTargets { get; protected set; } = null;
+
         public EngineBoxTrigerCollision(string object_name) : base(object_name) { }
 
         protected abstract void OnTriggerDetectCollision(Engine.EngineObject target_object, CollideSide side);
@@ -21,6 +24,14 @@ namespace PracticeWork.Engine
         {
             this.LinkedScene?.GetSceneObjects<EngineBoxTrigerCollision>().ForEach((target_object) =>
             {
+                if (this.CollisionTargets != null)
+                {
+                    if (this.CollisionTargets?.Find((System.Type searching) =>
+                    {
+                        return searching == target_object.ParentObject!.GetType();
+                    }) == null) return;
+                }
+
                 if (this.CollisionChecker((Engine.EngineBoxTrigerCollision)target_object, out var side))
                     this.OnTriggerDetectCollision(target_object, side);
             });
@@ -39,10 +50,16 @@ namespace PracticeWork.Engine
 
             side = CollideSide.None;
 
-            bool is_top_or_bottom = ((Position.Y + Geometry.Height - target_collision.Position.Y < target_collision.Position.X + target_collision.Geometry.Width - Position.X)
-                || (target_collision.Position.Y + target_collision.Geometry.Height - Position.Y < target_collision.Position.X + target_collision.Geometry.Width - Position.X))
-                && ((target_collision.Position.Y + target_collision.Geometry.Height - Position.Y < Position.X + Geometry.Width - target_collision.Position.X)
-                || (Position.Y + Geometry.Height - target_collision.Position.Y < Position.X + Geometry.Width - target_collision.Position.X));
+            int target_delta_y = target_collision.Position.Y + target_collision.Geometry.Height,
+                target_delta_x = target_collision.Position.X + target_collision.Geometry.Width;
+
+            int body_delta_y = Position.Y + Geometry.Height, body_delta_x = Position.X + Geometry.Width;
+
+            bool left_topbottom = ((body_delta_y - target_collision.Position.Y < target_delta_x - Position.X)
+                || (target_delta_y - Position.Y < target_delta_x - Position.X));
+
+            bool right_topbottom = ((target_delta_y - Position.Y < body_delta_x - target_collision.Position.X)
+                || (body_delta_y - target_collision.Position.Y < body_delta_x - target_collision.Position.X));
 
             int corner_delta_x = Math.Min(target_collision.Position.X + target_collision.Geometry.Width - this.Position.X,
                 this.Position.Y + this.Geometry.Height - target_collision.Position.Y);
@@ -50,14 +67,14 @@ namespace PracticeWork.Engine
             int corner_delta_y = Math.Min(target_collision.Position.Y + target_collision.Geometry.Height - this.Position.Y,
                 this.Position.Y + this.Geometry.Height - target_collision.Position.Y);
 
-            if (check_x == true && !is_top_or_bottom)
+            if (check_x == true && !(left_topbottom && right_topbottom))
             {
                 if (target_collision.Position.X + target_collision.Geometry.Width - this.Position.X < 
                    this.Position.X + this.Geometry.Width - target_collision.Position.X) side = CollideSide.Left;
                 else side |= CollideSide.Right;
             }
 
-            if(check_y == true && is_top_or_bottom)
+            if(check_y == true && (left_topbottom && right_topbottom))
             {
                 if (target_collision.Position.Y + target_collision.Geometry.Height - this.Position.Y <
                    this.Position.Y + this.Geometry.Height - target_collision.Position.Y) side |= CollideSide.Top;
@@ -77,41 +94,25 @@ namespace PracticeWork.Engine
 
         protected override void OnTriggerDetectCollision(EngineObject target_object, CollideSide side)
         {
-            //var backup_direction = new Point(this.previous_position.X - this.Position.X,
-            //    this.Position.Y - this.previous_position.Y);
-
-            int moving_direction_x = this.Position.X - this.previous_position.X, moving_direction_y = this.previous_position.Y - this.Position.Y;
-
-            if (this.ObjectName == "player_collision")
-            {
-                if ((side & CollideSide.Left) != CollideSide.None) Console.Write("Left;\t");
-                if ((side & CollideSide.Right) != CollideSide.None) Console.Write("Right;\t");
-                if ((side & CollideSide.Top) != CollideSide.None) Console.Write("Top;\t");
-                if ((side & CollideSide.Bottom) != CollideSide.None) Console.Write("Bottom;\t");
-                Console.WriteLine();
-            }
+            int moving_direction_x = this.Position.X - this.previous_position.X, 
+                moving_direction_y = this.previous_position.Y - this.Position.Y;
 
             if ((side & CollideSide.Left) != CollideSide.None)
             {
-                if (moving_direction_x > 0) moving_direction_x = 0;
-                else moving_direction_x = -moving_direction_x;
+                if (moving_direction_x > 0) moving_direction_x = 0; else moving_direction_x = -moving_direction_x;
             }
             if ((side & CollideSide.Right) != CollideSide.None)
             {
-                if (moving_direction_x < 0) moving_direction_x = 0;
-                else moving_direction_x = -moving_direction_x;
+                if (moving_direction_x < 0) moving_direction_x = 0; else moving_direction_x = -moving_direction_x;
             }
             if ((side & CollideSide.Top) != CollideSide.None)
             {
-                if (moving_direction_y < 0) moving_direction_y = 0;
-                else moving_direction_y = -moving_direction_y;
+                if (moving_direction_y < 0) moving_direction_y = 0; else moving_direction_y = -moving_direction_y;
             }
             if ((side & CollideSide.Bottom) != CollideSide.None)
             {
-                if (moving_direction_y > 0) moving_direction_y = 0;
-                else moving_direction_y = -moving_direction_y;
+                if (moving_direction_y > 0) moving_direction_y = 0; else moving_direction_y = -moving_direction_y;
             }
-
             this.ParentObject?.SetPosition(new(moving_direction_x, moving_direction_y));
         }
 

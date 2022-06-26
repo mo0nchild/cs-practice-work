@@ -11,6 +11,9 @@ namespace PracticeWork.Objects
 {
     internal sealed class Enemy : Engine.EngineObject
     {
+        public const int LifeValue = 3;
+        private int current_life_value = Enemy.LifeValue;
+
         public enum LookDirection : System.Int16 { Right = 1, Left = -1 };
 
         private Engine.EngineAnimator? enemy_animator = null;
@@ -21,7 +24,7 @@ namespace PracticeWork.Objects
         private Enemy.LookDirection look_direction = default;
 
         [Engine.EngineObjectImportConfiguration("TargetUpdateSpeed")]
-        public System.Double TargetUpdateSpeed 
+        public System.Double TargetUpdateSpeed
         { 
             private set { if (value <= 1.0 && value > 0) this.target_update_speed = value; }
             get { return this.target_update_speed; } 
@@ -33,10 +36,22 @@ namespace PracticeWork.Objects
         [Engine.EngineObjectConstructorSelecter]
         public Enemy(string object_name) : base(object_name) => this.look_direction = LookDirection.Right;
 
+        public void DamageRegistration()
+        {
+            if(--this.current_life_value == 0)
+            {
+                Console.WriteLine("Killed");
+            }
+            this.enemy_animator?.PlayAnimation("damage_animation", false);
+        }
+
         public override void InitialOperation(EngineScene scene_instance)
         {
-            this.player_instance = (EngineInputController?)(this.LinkedScene?.GetSceneObject("player"));
-            this.enemy_animator = (EngineAnimator?)(this.LinkedScene?.GetSceneObject("enemy_animator"));
+            try {
+                this.player_instance = (EngineInputController?)(this.LinkedScene?.GetSceneObject("player")); ;
+                this.enemy_animator = (EngineAnimator?)(this.GetChildrenObjects<EngineAnimator>()[0]);
+            }
+            catch(System.Exception error) { Console.WriteLine(error.Message); }
 
             this.enemy_animator?.PlayAnimation("run_animation");
             Win::Forms.Timer enemy_handling_timer = new() { Interval = (int)(60 / target_update_speed )};
@@ -51,8 +66,18 @@ namespace PracticeWork.Objects
         public override void UpdateOperation(Graphics graphic)
         {
             if (this.player_instance == null) return;
-            int target_x = this.target_position.X, target_y = this.target_position.Y;
 
+            if (this.enemy_animator.AnimationName != "damage_animation" && this.enemy_animator?.AnimationName != null &&
+                this.enemy_animator.AnimationName != "run_animation" && this.enemy_animator.AnimationName != "death_animation")
+                this.enemy_animator?.PlayAnimation("run_animation");
+
+            if(this.current_life_value < 0 && this.player_instance != null)
+            {
+                this.enemy_animator?.PlayAnimation("death_animation", false);
+                this.player_instance = null;
+            }
+
+            int target_x = this.target_position.X, target_y = this.target_position.Y;
             double angle = Math.Atan((double)(target_y - Position.Y) / (target_x - Position.X));
 
             if ((target_x - Position.X < 0 && this.look_direction == LookDirection.Right) ||

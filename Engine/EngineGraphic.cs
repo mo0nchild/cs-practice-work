@@ -20,7 +20,7 @@ namespace PracticeWork.Engine
             System.Drawing.Bitmap bitmap = new Bitmap(this.Geometry.Width, this.Geometry.Height);
             using (System.Drawing.Graphics image_graphic = Graphics.FromImage(bitmap))
             {
-                image_graphic.DrawRectangle(Pens.Black, Position.X, Position.Y, Geometry.Width, Geometry.Height);
+                image_graphic.DrawRectangle(Pens.Black, new Rectangle(this.Position, this.Geometry));
             }
             this.SpriteImage = (Image)bitmap.Clone();
         }
@@ -135,10 +135,13 @@ namespace PracticeWork.Engine
                 Image output_image = this.animation_list[animation_name].AnimationFrames[frame_index];
                 try
                 {
-
                     graphic.DrawImage(output_image, new Rectangle(this.Position, this.Geometry));
                 }
-                catch(System.Exception error) { Console.WriteLine(error.Message); }
+                catch(System.Exception) 
+                {
+                    Console.WriteLine(ParentObject!.Position.X + "; " + ParentObject!.Position.Y);
+                    this.ParentObject.SetPosition(0, 0);
+                }
             }
         }
     }
