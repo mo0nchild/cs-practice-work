@@ -80,8 +80,9 @@ namespace PracticeWork.Engine
             }
         }
 
-        public abstract void UpdateOperation(System.Drawing.Graphics graphic);
-        public virtual void InitialOperation(EngineScene scene_instance) { return; }
+        public abstract void PaintingOperation(System.Drawing.Graphics graphic);
+        public virtual void InitialOperation(Engine.IEngineScene scene_instance) { return; }
+        public virtual void UpdateOperation(Engine.IEngineScene scene_instance) { return; }
 
         public override bool Equals(object? target_object)
         {

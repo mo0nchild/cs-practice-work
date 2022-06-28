@@ -20,21 +20,29 @@ namespace PracticeWork.Engine
 
         protected abstract void OnTriggerDetectCollision(Engine.EngineObject target_object, CollideSide side);
 
-        public override void UpdateOperation(Graphics graphic)
+        public override void UpdateOperation(IEngineScene scene_instance)
         {
             this.LinkedScene?.GetSceneObjects<EngineBoxTrigerCollision>().ForEach((target_object) =>
             {
                 if (this.CollisionTargets != null)
                 {
+
                     if (this.CollisionTargets?.Find((System.Type searching) =>
                     {
                         return searching == target_object.ParentObject!.GetType();
                     }) == null) return;
                 }
+                else return;
+
+                //if (this.ObjectName == "player_collision") Console.WriteLine("player coll");
 
                 if (this.CollisionChecker((Engine.EngineBoxTrigerCollision)target_object, out var side))
                     this.OnTriggerDetectCollision(target_object, side);
             });
+        }
+
+        public override void PaintingOperation(Graphics graphic)
+        {
             if (this.BorderDraw) graphic.DrawRectangle(Pens.Red, new Rectangle(this.Position, this.Geometry));   
         }
 
@@ -85,6 +93,13 @@ namespace PracticeWork.Engine
         }
     }
 
+    public sealed class EngineBoxTriggerCollisionNone : Engine.EngineObject
+    {
+        [Engine.EngineObjectConstructorSelecter]
+        public EngineBoxTriggerCollisionNone(string object_name) : base(object_name) { }
+        public override void PaintingOperation(Graphics graphic) { return; }
+    }
+
     public sealed class EngineBoxStaticCollision : Engine.EngineBoxTrigerCollision
     {
         private System.Drawing.Point previous_position = new Point(0, 0);
@@ -116,9 +131,9 @@ namespace PracticeWork.Engine
             this.ParentObject?.SetPosition(new(moving_direction_x, moving_direction_y));
         }
 
-        public override void UpdateOperation(Graphics graphic)
+        public override void UpdateOperation(IEngineScene scene_instance)
         {
-            base.UpdateOperation(graphic);
+            base.UpdateOperation(scene_instance);
             this.previous_position = new(this.Position.X, this.Position.Y);
         }
     }

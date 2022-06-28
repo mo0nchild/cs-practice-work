@@ -28,7 +28,7 @@ namespace PracticeWork.Engine
         public void SpriteFlip(ImageExtension.FlipImageDirection direction) => this.SpriteImage?.FlipImage(direction);
         public void SpriteRotate(System.Double rotation_angle) => this.SpriteImage?.RotateImage((float)rotation_angle);
 
-        public override void InitialOperation(EngineScene scene_instance)
+        public override void InitialOperation(IEngineScene scene_instance)
         {
             if (this.SpriteImagePath is not null) 
             {
@@ -37,7 +37,7 @@ namespace PracticeWork.Engine
             }
         }
 
-        public override void UpdateOperation(Graphics graphic)
+        public override void PaintingOperation(Graphics graphic)
         {
             graphic.DrawImage(this.SpriteImage!, new Rectangle(this.Position, this.Geometry));
         }
@@ -62,13 +62,13 @@ namespace PracticeWork.Engine
         public System.Double AnimationsSpeed 
         { 
             protected set { if (value <= 1.0 && value > 0) this.animation_playing_speed = value; } 
-            get => this.animation_playing_speed; 
+            get => this.animation_playing_speed;
         }
 
         [Engine.EngineObjectConstructorSelecter]
         public EngineAnimator(string object_name) : base(object_name) => this.AnimationsContainer = new();
 
-        public override void InitialOperation(EngineScene scene_instance)
+        public override void InitialOperation(IEngineScene scene_instance)
         {
             foreach (KeyValuePair<string, string> target_item in this.AnimationsContainer)
             {
@@ -125,9 +125,11 @@ namespace PracticeWork.Engine
             }
         }
 
-        public override void UpdateOperation(Graphics graphic)
+        //public override void UpdateOperation(IEngineScene scene_instance) { return; }
+
+        public override void PaintingOperation(Graphics graphic)
         {
-            if (this.current_frame != null) 
+            if (this.current_frame != null)
             {
                 (string animation_name, int frame_index, _) = this.current_frame;
                 if (this.animation_list.ContainsKey(animation_name) != true) return;
@@ -137,7 +139,7 @@ namespace PracticeWork.Engine
                 {
                     graphic.DrawImage(output_image, new Rectangle(this.Position, this.Geometry));
                 }
-                catch(System.Exception) 
+                catch (System.Exception)
                 {
                     Console.WriteLine(ParentObject!.Position.X + "; " + ParentObject!.Position.Y);
                     this.ParentObject.SetPosition(0, 0);

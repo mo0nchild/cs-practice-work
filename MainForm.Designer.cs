@@ -32,7 +32,6 @@
             this.main_panel.TabIndex = 0;
 
             this.Controls.Add(main_panel);
-            Cursor.Hide();
         }
 
         #region Windows Form Designer generated code

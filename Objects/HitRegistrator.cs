@@ -10,15 +10,8 @@ namespace PracticeWork.Objects
     class DamageHolder : Engine.EngineObject
     {
         [Engine.EngineObjectConstructorSelecter]
-        public DamageHolder(string object_name) : base(object_name)
-        {
-            this.Geometry = new(50, 50);
-        }
-
-        public override void UpdateOperation(Graphics graphic)
-        {
-            return;
-        }
+        public DamageHolder(string object_name) : base(object_name) => this.Geometry = new(50, 50);
+        public override void PaintingOperation(Graphics graphic) { return; }
     }
 
     internal sealed class PlayerHitRegistrator : Engine.EngineBoxTrigerCollision
@@ -58,19 +51,27 @@ namespace PracticeWork.Objects
 
     internal sealed class EnemyHitRegistrator : Engine.EngineBoxTrigerCollision
     {
-        private System.Boolean hit_installed = default;
+        //private System.Boolean hit_installed = default;
+        public System.Boolean HitInstalled { get; private set; } = default;
+        private Objects.Enemy? enemy_instance_link = null;
 
         [Engine.EngineObjectConstructorSelecter]
         public EnemyHitRegistrator(string object_name) : base(object_name) { }
 
-        public void HitRegistration() => this.hit_installed = true;
+        public override void InitialOperation(IEngineScene scene_instance)
+        {
+            this.enemy_instance_link = (this.ParentObject?.ParentObject as Enemy);
+        }
+
+        public void HitRegistration(bool value = true) => this.HitInstalled = value;
 
         protected override void OnTriggerDetectCollision(EngineObject target_object, CollideSide side)
         {
-            if (target_object is PlayerDamageRegistrator registrator && this.hit_installed)
+            if (target_object is PlayerDamageRegistrator registrator && this.HitInstalled && this.enemy_instance_link!.IsAlive)
             {
                 registrator.DamageRegistration();
-                this.hit_installed = false;
+                this.enemy_instance_link?.EnemyHitPlayer();
+                this.HitInstalled = false;
             }
         }
     }
@@ -80,7 +81,7 @@ namespace PracticeWork.Objects
         [Engine.EngineObjectConstructorSelecter]
         public PlayerDamageRegistrator(string object_name) : base(object_name) { }
 
-        public void DamageRegistration() => (this.ParentObject as Objects.Player)?.DamageRegistration();
+        public void DamageRegistration() => (this.ParentObject?.ParentObject as Objects.Player)?.DamageRegistration();
 
         protected override void OnTriggerDetectCollision(EngineObject target_object, CollideSide side)
         {

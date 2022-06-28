@@ -11,6 +11,7 @@ namespace PracticeWork.Objects
     internal sealed class Player : PracticeWork.Engine.EngineInputController
     {
         public enum MoveDirection : System.Int16 { Positive = 1, Negative = -1, Idle = 0 };
+        public const int MaxLifeValue = 3;
 
         private System.Drawing.Point cursor_position = new Point(0, 0);
         private Player.MoveDirection move_direction_x = default, move_direction_y = default,
@@ -20,6 +21,10 @@ namespace PracticeWork.Objects
         private Engine.EngineBoxStaticCollision? player_collision = null;
         private Objects.PlayerHitRegistrator? hit_registrator = default;
 
+        private int current_life_value = Player.MaxLifeValue;
+        public System.Boolean IsAlive { get; private set; } = true;
+        public System.Boolean IsReadyToAttack { get; set; } = true;
+
         [Engine.EngineObjectImportConfiguration("MovementSpeed")]
         public System.Double MovementSpeed { get; protected set; } = default;
 
@@ -27,7 +32,7 @@ namespace PracticeWork.Objects
         public Player(string object_name) : base(object_name) 
             => this.move_direction_x = this.move_direction_y = Player.MoveDirection.Idle;
 
-        public override void InitialOperation(EngineScene scene_instance)
+        public override void InitialOperation(IEngineScene scene_instance)
         {
             this.player_collision = (EngineBoxStaticCollision)(this.LinkedScene?.GetSceneObject("player_colission"))!;
             this.player_animator = (EngineAnimator)(this.LinkedScene?.GetSceneObject("player_animator"))!;
@@ -36,10 +41,20 @@ namespace PracticeWork.Objects
 
         public void DamageRegistration()
         {
-
+            if (IsAlive)
+            {
+                if (--this.current_life_value < 0)
+                {
+                    this.player_animator?.PlayAnimation("death_animation", false);
+                    this.IsAlive = false;
+                    MessageBox.Show("You Failed");
+                }
+                else this.player_animator?.PlayAnimation("damage_animation", false);
+            }
+            
         }
 
-        public override void UpdateOperation(Graphics graphic)
+        public override void UpdateOperation(IEngineScene scene_instance)
         {
             double current_speed = this.MovementSpeed;
             if ((int)look_direction > 0 && this.move_direction_x < 0 || (int)look_direction < 0 && this.move_direction_x > 0)
@@ -48,17 +63,18 @@ namespace PracticeWork.Objects
             this.SetPosition(new Point((int)(current_speed * (int)this.move_direction_x),
                 (int)(current_speed * (int)this.move_direction_y)));
 
-            if(!Regex.IsMatch(this.player_animator?.AnimationName!, "attack_animation[1-3]{1}") && hit_registrator.HitInstalled)
+            if (!Regex.IsMatch(this.player_animator?.AnimationName!, "attack_animation[1-3]{1}") )
             {
-                this.hit_registrator.HitRegistration(false);
+                if(hit_registrator.HitInstalled) this.hit_registrator.HitRegistration(false);
+                this.IsReadyToAttack = true;
             }
 
             if (!Regex.IsMatch(this.player_animator?.AnimationName!, "attack_animation[1-3]{1}") &&
-                this.player_animator?.AnimationName != null) 
+                this.player_animator?.AnimationName != "damage_animation" && this.IsAlive)
             {
                 if (Math.Abs((int)this.move_direction_x) + Math.Abs((int)this.move_direction_y) > 0)
                 {
-                    if (this.player_animator!.AnimationName != "run_animation") 
+                    if (this.player_animator!.AnimationName != "run_animation")
                         this.player_animator?.PlayAnimation("run_animation");
                 }
                 else
@@ -73,6 +89,10 @@ namespace PracticeWork.Objects
                 this.player_animator?.FlipAllAnimationFrame(ImageExtension.FlipImageDirection.FlipX);
                 this.look_direction = (MoveDirection)(-(int)look_direction);
             }
+        }
+
+        public override void PaintingOperation(Graphics graphic)
+        {
             graphic.DrawRectangle(Pens.Black, new Rectangle(this.Position, this.Geometry));
         }
 
@@ -102,6 +122,7 @@ namespace PracticeWork.Objects
                 this.player_animator?.AnimationName != null)
             {
                 this.player_animator!.PlayAnimation("attack_animation" + new Random().Next(1, 4), false);
+                this.IsReadyToAttack = false;
             }
         }
     }
@@ -110,6 +131,7 @@ namespace PracticeWork.Objects
     {
         private System.Drawing.Image look_cursor_image, attack_cursor_image;
         private Objects.PlayerHitRegistrator? hit_registrator = default;
+        private Objects.Player? player_instance = default;
         
         private System.Boolean is_attacking = default;
         private System.Drawing.Point cursor_position = new Point(0, 0);
@@ -124,9 +146,10 @@ namespace PracticeWork.Objects
             this.attack_cursor_image = Image.FromFile(@"..\..\..\Assets\Interface\sword_cursor.png");
         }
 
-        public override void InitialOperation(EngineScene scene_instance)
+        public override void InitialOperation(IEngineScene scene_instance)
         {
             this.hit_registrator = (PlayerHitRegistrator?)this.GetChildrenObjects<PlayerHitRegistrator>()[0];
+            this.player_instance = (Player?)this.LinkedScene?.GetSceneObject("player");
         }
 
         public override void MouseMoveOperation(MouseEventArgs mouse_arg)
@@ -134,18 +157,18 @@ namespace PracticeWork.Objects
             this.cursor_position = new Point(mouse_arg.X, mouse_arg.Y);
         }
 
-        public override void MouseInputOperation(MouseEventArgs mouse_arg)
-        {
-            this.is_attacking = true;
-        }
+        public override void MouseInputOperation(MouseEventArgs mouse_arg) => this.is_attacking = true;
 
         public override void MouseReleaseOperation(MouseEventArgs mouse_arg)
         {
-            this.hit_registrator?.HitRegistration();
+            if (this.player_instance!.IsReadyToAttack) this.hit_registrator?.HitRegistration();
             this.is_attacking = false;
         }
 
-        public override void UpdateOperation(Graphics graphic)
+        private System.Drawing.Point center = new();
+        private System.Double angle = default, direction = default;
+
+        public override void UpdateOperation(IEngineScene scene_instance)
         {
             double delta_h = ((this.Position.Y + this.Geometry.Height / 2.0) - this.cursor_position.Y),
                 delta_w = (this.cursor_position.X - (this.Position.X + this.Geometry.Width / 2.0));
@@ -153,11 +176,17 @@ namespace PracticeWork.Objects
             double R = (Math.Sqrt(Math.Pow(delta_w, 2) + Math.Pow(delta_h, 2)));
             R = (R < this.MaxAttackRadius) ? R : this.MaxAttackRadius;
 
-            double angle = (delta_w == 0) ? 1 : Math.Atan(delta_h / delta_w);
-            Point center = new((int)(this.Position.X + this.Geometry.Width / 2.0), (int)(this.Position.Y + this.Geometry.Height / 2.0));
+            this.angle = (delta_w == 0) ? 1 : Math.Atan(delta_h / delta_w);
+            this.center = new((int)(this.Position.X + this.Geometry.Width / 2.0), (int)(this.Position.Y + this.Geometry.Height / 2.0));
 
-            int direction = (this.cursor_position.X - center.X > 0) ? 1 : -1;
+            this.direction = (this.cursor_position.X - center.X > 0) ? 1 : -1;
 
+            this.hit_registrator?.SetPosition(center.X + (int)(MaxAttackRadius * Math.Cos(angle) * direction),
+                center.Y + (int)(MaxAttackRadius * Math.Sin(angle) * -direction));
+        }
+
+        public override void PaintingOperation(Graphics graphic)
+        {
             graphic.DrawImage(this.is_attacking ? this.attack_cursor_image : this.look_cursor_image, 
                 new Rectangle(new(this.cursor_position.X + 15, this.cursor_position.Y + 15), new(30, 30)));
 
@@ -172,9 +201,6 @@ namespace PracticeWork.Objects
                 graphic.DrawLine(Pens.White, center, new(center.X + (int)(MaxAttackRadius * Math.Cos(angle - 30 * Math.PI / 180) 
                     * direction), center.Y + (int)(MaxAttackRadius * Math.Sin(angle - 30 * Math.PI / 180) * -direction)));
             }
-
-            this.hit_registrator?.SetPosition(center.X + (int)(MaxAttackRadius * Math.Cos(angle) * direction), 
-                center.Y + (int)(MaxAttackRadius * Math.Sin(angle) * -direction));
         }
     }
 }

@@ -98,11 +98,15 @@ namespace PracticeWork.Engine
         }
     }
 
+    public delegate void UpdateOperationHandling(Engine.IEngineScene scene_link);
+
     public sealed class EngineScene : IEngineScene
     {
         private readonly List<Engine.EngineObject> registred_scene_children;
         private readonly Dictionary<string, List<EngineSceneConfiguration>> registred_scene_configuration;
+
         private readonly Win::Forms.Panel panel_node_instance;
+        private event UpdateOperationHandling? UpdateHandling = default;
 
         public System.Double UpdateDelay { get; init; } = 500.0;
         public System.String SceneName { get; init; } = "Scene";
@@ -137,9 +141,11 @@ namespace PracticeWork.Engine
             {
                 this.registred_scene_children.ForEach((EngineObject target_object) =>
                 {
-                    lock(this.painter_locker) { target_object?.UpdateOperation(arg.Graphics); }
+                    lock(this.painter_locker) { target_object?.PaintingOperation(arg.Graphics); }
                 });
             };
+
+            this.registred_scene_children.ForEach((target_object) => this.UpdateHandling += target_object.UpdateOperation);
         }
 
         public EngineObject? GetSceneObject(string required_object_name) => this.registred_scene_children.Find(
@@ -165,6 +171,8 @@ namespace PracticeWork.Engine
             {
                 lock (this.timer_locker)
                 {
+                    if(this.UpdateHandling?.GetInvocationList().Length != 0) this.UpdateHandling!(this);
+
                     this.panel_node_instance.Focus();
                     this.panel_node_instance.Invalidate();
                 }
