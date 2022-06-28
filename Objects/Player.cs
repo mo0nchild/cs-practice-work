@@ -41,9 +41,9 @@ namespace PracticeWork.Objects
 
         public void DamageRegistration()
         {
-            if (IsAlive)
+            if (this.IsAlive)
             {
-                if (--this.LifeCount < 0)
+                if (--this.LifeCount <= 0)
                 {
                     this.player_animator?.PlayAnimation("death_animation", false);
                     this.IsAlive = false;

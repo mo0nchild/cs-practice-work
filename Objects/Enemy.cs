@@ -17,7 +17,7 @@ namespace PracticeWork.Objects
         private int current_life_value = Enemy.LifeValue;
 
         public enum LookDirection : System.Int16 { Right = 1, Left = -1 };
-        public System.Boolean IsAlive { get; set; } = false;
+        public System.Boolean IsAlive { get; set; } = true;
         public System.Boolean IsReadyToRefresh { get; set; } = false;
 
         private Engine.EngineAnimator? enemy_animator = null;
@@ -128,7 +128,11 @@ namespace PracticeWork.Objects
             if(this.current_life_value > 0) this.SetPosition(new Point(direction_x, -direction_y));
         }
 
-        public override void PaintingOperation(Graphics graphic) { return; }
+        public override void PaintingOperation(Graphics graphic) 
+        {
+            graphic.DrawString("Life: " + this.current_life_value.ToString(), new Font("Arial", 10),
+                Brushes.White, this.Position.X, this.Position.Y);
+        }
     }
 
     public sealed class EnemyManager : Engine.EngineObject
@@ -144,6 +148,7 @@ namespace PracticeWork.Objects
 
         [Engine.EngineObjectImportConfiguration("EnemyCount")]
         public int EnemyCount { get; private set; } = 0;
+        public int EnemyEliminated { get; private set; } = 0;
 
         [Engine.EngineObjectConstructorSelecter]
         public EnemyManager(string object_name) : base(object_name) { }
@@ -184,6 +189,8 @@ namespace PracticeWork.Objects
                 {
                     enemy.SetPosition(item.EnemyStartPosition.X, item.EnemyStartPosition.Y);
                     enemy.Refresh();
+
+                    this.EnemyEliminated++;
                 }
             }
         }

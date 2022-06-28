@@ -1,5 +1,6 @@
 using PracticeWork.Objects;
 using PracticeWork.Engine;
+using PracticeWork.Configuration;
 
 namespace PracticeWork
 {
@@ -22,15 +23,6 @@ namespace PracticeWork
             Engine.EngineSceneBuilder scene_builder = new("Scene", this.main_panel!);
 
             scene_builder
-
-                .RegisterSceneConfiguration<string>("border_sprite", "SpriteImagePath", @"..\..\..\Assets\Scene\border2.png")
-                .RegisterSceneConfiguration<Size>("border_sprite", "ObjectGeometry", new Size(1024, 768))
-                .RegisterSceneConfiguration<Size>("border_wall1", "ObjectGeometry", new Size(96, 1024))
-                .RegisterSceneConfiguration<Size>("border_wall2", "ObjectGeometry", new Size(1024, 96))
-                .RegisterSceneConfiguration<Size>("border_wall3", "ObjectGeometry", new Size(96, 1024))
-                .RegisterSceneConfiguration<Point>("border_wall3", "ObjectPosition", new Point(928, 0))
-                .RegisterSceneConfiguration<Size>("border_wall4", "ObjectGeometry", new Size(1024, 96))
-                .RegisterSceneConfiguration<Point>("border_wall4", "ObjectPosition", new Point(0, 672))
 
                 .RegisterSceneConfiguration<bool>("player_damage", "BorderDraw", debug_mode)
                 .RegisterSceneConfiguration<bool>("player_collision", "BorderDraw", debug_mode)
@@ -112,20 +104,11 @@ namespace PracticeWork
                 eneme_manager_children.Add("enemy" + i);
             }
 
-            scene_builder
-                .RegisterSceneChild<Objects.EnemyManager>("enemy_manager", eneme_manager_children)
+            scene_builder.RegisterSceneChild<Objects.EnemyManager>("enemy_manager", eneme_manager_children);
+            scene_builder.AddSceneBorder(@"..\..\..\Assets\Scene\border2.png");
+            scene_builder.AddUserInterface(16);
 
-                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall1", new())
-                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall2", new())
-                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall3", new())
-                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall4", new())
-                .RegisterSceneChild<Engine.EngineSprite>("border_sprite", new())
-                .RegisterSceneChild<Objects.LevelWallContainer>("border", new() { "border_sprite", "border_wall1",
-                    "border_wall2", "border_wall3", "border_wall4"});
-
-            var scene = scene_builder.BuildScene();
-
-            scene.RunSceneHandler(15, () => { this.Close(); });
+            scene_builder.BuildScene().RunSceneHandler(15, () => { this.Close(); });
         }
 
 
