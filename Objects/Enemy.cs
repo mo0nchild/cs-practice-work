@@ -108,9 +108,9 @@ namespace PracticeWork.Objects
             //    this.IsAlive = false;
             //}
 
-            if (this.current_life_value <= 0 && this.enemy_animator.AnimationName != "death_animation") this.IsAlive = false;
+            if (this.current_life_value <= 0 && this.enemy_animator!.AnimationName != "death_animation") this.IsAlive = false;
 
-            if(this.IsAlive == false && this.enemy_animator.AnimationName != "death_animation") this.IsReadyToRefresh = true;
+            if(this.IsAlive == false && this.enemy_animator!.AnimationName != "death_animation") this.IsReadyToRefresh = true;
 
             int target_x = this.target_position.X, target_y = this.target_position.Y;
             double angle = Math.Atan((double)(target_y - Position.Y) / (target_x - Position.X));
@@ -137,6 +137,8 @@ namespace PracticeWork.Objects
 
     public sealed class EnemyManager : Engine.EngineObject
     {
+        public const System.Int32 SceneMaxEnemy = 10;
+
         public class EnemyConfiguration
         { 
             public Objects.Enemy EnemyInstance { get; set; }
@@ -155,7 +157,7 @@ namespace PracticeWork.Objects
 
         public override void InitialOperation(IEngineScene scene_instance)
         {
-            if (EnemyCount > 10) throw new Exception("So many enemies :)");
+            if (EnemyCount > EnemyManager.SceneMaxEnemy) throw new Exception("So many enemies :)");
             for (int i = 0; i < this.EnemyCount; i++)
             {
                 var selected_enemy = (Objects.Enemy?)this.GetChildrenObject("enemy" + i);
@@ -167,7 +169,7 @@ namespace PracticeWork.Objects
 
             bool trigger_break = false;
 
-            for(int row = 0; row < 5; row++)
+            for(int row = 0; row < EnemyManager.SceneMaxEnemy / 2; row++)
             {
                 for(int side = 0; side <= 1; side++)
                 {

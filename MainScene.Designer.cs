@@ -1,7 +1,7 @@
 ﻿namespace PracticeWork
 {
     public class MyPanel : Panel { public MyPanel() : base() => this.DoubleBuffered = true; }
-    partial class MainForm
+    partial class MainScene
     {
         /// <summary>
         ///  Required designer variable.
