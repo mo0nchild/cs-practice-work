@@ -11,7 +11,6 @@ namespace PracticeWork.Objects
     internal sealed class Player : PracticeWork.Engine.EngineInputController
     {
         public enum MoveDirection : System.Int16 { Positive = 1, Negative = -1, Idle = 0 };
-        public const int MaxLifeValue = 3;
 
         private System.Drawing.Point cursor_position = new Point(0, 0);
         private Player.MoveDirection move_direction_x = default, move_direction_y = default,
@@ -21,7 +20,8 @@ namespace PracticeWork.Objects
         private Engine.EngineBoxStaticCollision? player_collision = null;
         private Objects.PlayerHitRegistrator? hit_registrator = default;
 
-        private int current_life_value = Player.MaxLifeValue;
+        [Engine.EngineObjectImportConfiguration("LifeCount")]
+        public System.Int32 LifeCount { get; private set; } = 3;
         public System.Boolean IsAlive { get; private set; } = true;
         public System.Boolean IsReadyToAttack { get; set; } = true;
 
@@ -43,11 +43,10 @@ namespace PracticeWork.Objects
         {
             if (IsAlive)
             {
-                if (--this.current_life_value < 0)
+                if (--this.LifeCount < 0)
                 {
                     this.player_animator?.PlayAnimation("death_animation", false);
                     this.IsAlive = false;
-                    MessageBox.Show("You Failed");
                 }
                 else this.player_animator?.PlayAnimation("damage_animation", false);
             }
@@ -60,8 +59,13 @@ namespace PracticeWork.Objects
             if ((int)look_direction > 0 && this.move_direction_x < 0 || (int)look_direction < 0 && this.move_direction_x > 0)
                 current_speed /= 1.5;
 
-            this.SetPosition(new Point((int)(current_speed * (int)this.move_direction_x),
+            if(this.IsAlive) this.SetPosition(new Point((int)(current_speed * (int)this.move_direction_x),
                 (int)(current_speed * (int)this.move_direction_y)));
+
+            if (!this.IsAlive && this.player_animator?.AnimationName != "death_animation")
+            {
+                this.LinkedScene?.ExitSceneHandler();
+            }
 
             if (!Regex.IsMatch(this.player_animator?.AnimationName!, "attack_animation[1-3]{1}") )
             {
@@ -91,10 +95,7 @@ namespace PracticeWork.Objects
             }
         }
 
-        public override void PaintingOperation(Graphics graphic)
-        {
-            graphic.DrawRectangle(Pens.Black, new Rectangle(this.Position, this.Geometry));
-        }
+        public override void PaintingOperation(Graphics graphic) { }
 
         public override void KeyInputOperation(KeyEventArgs key_arg)
         {

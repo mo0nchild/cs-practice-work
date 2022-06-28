@@ -34,8 +34,6 @@ namespace PracticeWork.Engine
                 }
                 else return;
 
-                //if (this.ObjectName == "player_collision") Console.WriteLine("player coll");
-
                 if (this.CollisionChecker((Engine.EngineBoxTrigerCollision)target_object, out var side))
                     this.OnTriggerDetectCollision(target_object, side);
             });

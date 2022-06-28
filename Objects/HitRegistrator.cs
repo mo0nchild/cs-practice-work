@@ -83,6 +83,11 @@ namespace PracticeWork.Objects
 
         public void DamageRegistration() => (this.ParentObject?.ParentObject as Objects.Player)?.DamageRegistration();
 
+        public override void InitialOperation(IEngineScene scene_instance)
+        {
+            Console.WriteLine(this.Position.X + ";\t" + this.Position.Y);
+        }
+
         protected override void OnTriggerDetectCollision(EngineObject target_object, CollideSide side)
         {
 

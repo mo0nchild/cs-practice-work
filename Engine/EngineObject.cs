@@ -43,7 +43,12 @@ namespace PracticeWork.Engine
             if(new_including_child.Geometry.Equals(new Size(10, 10))) 
                 new_including_child.Geometry = this.Geometry;
 
+            if (new_including_child.ObjectName == "player_damage")
+                Console.WriteLine(new_including_child.Position.X + ";\t" + new_including_child.Position.Y);
             new_including_child.SetPosition(new Point(this.Position.X, -this.Position.Y));
+            if (new_including_child.ObjectName == "player_damage") 
+                Console.WriteLine(new_including_child.Position.X + ";\t" + new_including_child.Position.Y);
+
             new_including_child.ParentObject = this;
 
             this.children_list.Add(new_including_child);

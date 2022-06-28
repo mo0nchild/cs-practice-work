@@ -142,7 +142,7 @@ namespace PracticeWork.Engine
                 catch (System.Exception)
                 {
                     Console.WriteLine(ParentObject!.Position.X + "; " + ParentObject!.Position.Y);
-                    this.ParentObject.SetPosition(0, 0);
+                    this.ParentObject.SetPosition(this.LinkedScene!.SceneSize.Width / 2, 0);
                 }
             }
         }

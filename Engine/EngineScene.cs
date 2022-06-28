@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Win = System.Windows;
 
 namespace PracticeWork.Engine
@@ -13,7 +12,10 @@ namespace PracticeWork.Engine
         List<EngineObject> GetSceneObjects<TObject>() where TObject : EngineObject;
         EngineObject? GetSceneObject(string required_object_name);
         EngineSceneConfiguration? GetSceneConfiguration(string object_name, string config_name);
-        void RunSceneHandler(double update_delay_milliseconds);
+
+        void ExitSceneHandler();
+        void RunSceneHandler(double update_delay, System.Action on_exit_operation);
+        System.Drawing.Size SceneSize { get; }
     }
 
     public sealed class EngineSceneBuilder : System.Object
@@ -110,6 +112,9 @@ namespace PracticeWork.Engine
 
         public System.Double UpdateDelay { get; init; } = 500.0;
         public System.String SceneName { get; init; } = "Scene";
+        public System.Boolean IsExit { get; private set; } = false;
+
+        public Size SceneSize { get => this.panel_node_instance.Size; }
 
         public EngineScene(Win::Forms.Panel panel, List<EngineObject> scene_children,
             Dictionary<string, List<EngineSceneConfiguration>> scene_configuration)
@@ -164,11 +169,13 @@ namespace PracticeWork.Engine
         }
 
         private object timer_locker = new();
-        public void RunSceneHandler(double update_delay_milliseconds)
+        public void RunSceneHandler(double update_delay, Action on_exit_operation)
         {
-            Win::Forms.Timer scene_handling_timer = new() { Interval = (int)update_delay_milliseconds };
+            Win::Forms.Timer scene_handling_timer = new() { Interval = (int)update_delay };
             scene_handling_timer.Tick += new EventHandler(delegate (object? sender, EventArgs args)
             {
+                if(this.IsExit) { scene_handling_timer.Stop(); on_exit_operation(); return; }
+
                 lock (this.timer_locker)
                 {
                     if(this.UpdateHandling?.GetInvocationList().Length != 0) this.UpdateHandling!(this);
@@ -182,5 +189,7 @@ namespace PracticeWork.Engine
             this.registred_scene_children.ForEach((target_record) => target_record.InitialOperation(this));
             scene_handling_timer.Start();
         }
+
+        public void ExitSceneHandler() => this.IsExit = true;
     }
 }

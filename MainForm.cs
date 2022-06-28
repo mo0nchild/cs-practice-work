@@ -5,7 +5,9 @@ namespace PracticeWork
 {
     public partial class MainForm : Form
     {
-        public const int enemy_count = 5;
+        public const int enemy_count = 5, player_life = 5;
+        public const double max_enemy_speed = 4.0, player_speed = 4.0;
+        public const bool debug_mode = true;
 
         public MainForm()
         {
@@ -21,46 +23,30 @@ namespace PracticeWork
 
             scene_builder
 
-                .RegisterSceneConfiguration<string>("border", "SpriteImagePath", @"..\..\..\Assets\Scene\border2.png")
-                .RegisterSceneConfiguration<Size>("border", "ObjectGeometry", new Size(1024, 768))
+                .RegisterSceneConfiguration<string>("border_sprite", "SpriteImagePath", @"..\..\..\Assets\Scene\border2.png")
+                .RegisterSceneConfiguration<Size>("border_sprite", "ObjectGeometry", new Size(1024, 768))
+                .RegisterSceneConfiguration<Size>("border_wall1", "ObjectGeometry", new Size(96, 1024))
+                .RegisterSceneConfiguration<Size>("border_wall2", "ObjectGeometry", new Size(1024, 96))
+                .RegisterSceneConfiguration<Size>("border_wall3", "ObjectGeometry", new Size(96, 1024))
+                .RegisterSceneConfiguration<Point>("border_wall3", "ObjectPosition", new Point(928, 0))
+                .RegisterSceneConfiguration<Size>("border_wall4", "ObjectGeometry", new Size(1024, 96))
+                .RegisterSceneConfiguration<Point>("border_wall4", "ObjectPosition", new Point(0, 672))
 
+                .RegisterSceneConfiguration<bool>("player_damage", "BorderDraw", debug_mode)
+                .RegisterSceneConfiguration<bool>("player_collision", "BorderDraw", debug_mode)
+                .RegisterSceneConfiguration<bool>("player_hit", "BorderDraw", debug_mode)
 
-
-                //.RegisterSceneConfiguration<double>("enemy", "MovementSpeed", 2.5)
-                //.RegisterSceneConfiguration<Size>("enemy", "ObjectGeometry", new Size(50, 50))
-                //.RegisterSceneConfiguration<Point>("enemy", "ObjectPosition", new Point(0, 100))
-                //.RegisterSceneConfiguration<double>("enemy", "TargetUpdateSpeed", 0.1)
-                //.RegisterSceneConfiguration<Size>("enemy_collision", "ObjectGeometry", new Size(50, 40))
-                //.RegisterSceneConfiguration<Point>("enemy_collision", "ObjectPosition", new Point(0, 10))
-                //.RegisterSceneConfiguration<List<Type>>("enemy_collision", "TypesForCollide", new() { typeof(Objects.Player), typeof(Objects.Enemy) })
-                //.RegisterSceneConfiguration<List<Type>>("enemy_hit", "TypesForCollide", new() { typeof(Objects.DamageHolder) })
-                //.RegisterSceneConfiguration<Dictionary<string, string>>("enemy_animator", "AnimationsContainer", new()
-                //{
-                //    { "run_animation", @"..\..\..\Assets\Enemy\Movement" },
-                //    { "attack_animation", @"..\..\..\Assets\Enemy\Attack" },
-                //    { "idle_animation", @"..\..\..\Assets\Enemy\Idle" },
-                //    { "damage_animation", @"..\..\..\Assets\Enemy\Damage" },
-                //    { "death_animation", @"..\..\..\Assets\Enemy\Death" },
-                //})
-                //.RegisterSceneConfiguration<double>("enemy_animator", "AnimationSpeed", 0.75)
-
-
-
-                    
-                .RegisterSceneConfiguration<bool>("enemy_hit", "BorderDraw", true)
-                .RegisterSceneConfiguration<bool>("player_damage", "BorderDraw", true)
-
-
-
-
-                .RegisterSceneConfiguration<double>("player", "MovementSpeed", 4)
+                .RegisterSceneConfiguration<double>("player", "MovementSpeed", player_speed)
+                .RegisterSceneConfiguration<Int32>("player", "LifeCount", player_life)
                 .RegisterSceneConfiguration<Size>("player", "ObjectGeometry", new Size(50, 50))
-                .RegisterSceneConfiguration<Size>("player_collision", "ObjectGeometry", new Size(50, 40))
+                .RegisterSceneConfiguration<Point>("player", "ObjectPosition", new Point(512, 380))
+                .RegisterSceneConfiguration<Size>("player_collision", "ObjectGeometry", new Size(40, 50))
+                .RegisterSceneConfiguration<Point>("player_collision", "ObjectPosition", new Point(0, 5))
                 .RegisterSceneConfiguration<double>("player_attack", "MaxAttackRadius", 80)
-                .RegisterSceneConfiguration<Point>("player_collision", "ObjectPosition", new Point(0, 10))
-                .RegisterSceneConfiguration<List<Type>>("player_collision", "TypesForCollide", new() { typeof(Objects.Enemy) })
+                .RegisterSceneConfiguration<List<Type>>("player_collision", "TypesForCollide", new() { typeof(Objects.Enemy), typeof(Objects.LevelWallContainer) })
                 .RegisterSceneConfiguration<List<Type>>("player_hit", "TypesForCollide", new() { typeof(Objects.DamageHolder) })
-                .RegisterSceneConfiguration<Size>("damage_holder_player", "ObjectGeometry", new(70, 70))
+                .RegisterSceneConfiguration<Point>("player_damage", "ObjectPosition", new Point(-10, 0))
+                .RegisterSceneConfiguration<Size>("player_damage", "ObjectGeometry", new Size(60, 60))
                 .RegisterSceneConfiguration<Dictionary<string, string>>("player_animator", "AnimationsContainer", new()
                 {
                     { "run_animation", @"..\..\..\Assets\Player\Movement" },
@@ -74,19 +60,6 @@ namespace PracticeWork
                 .RegisterSceneConfiguration<double>("player_animator", "AnimationSpeed", 0.9);
 
             scene_builder
-
-                //.RegisterSceneChild<Engine.EngineAnimator>("enemy_animator", new())
-                //.RegisterSceneChild<Engine.EngineBoxStaticCollision>("enemy_collision", new())
-
-                //.RegisterSceneChild<Objects.EnemyDamageRegistrator>("enemy_damage", new())
-                //.RegisterSceneChild<Objects.DamageHolder>("damage_holder", new() { "enemy_damage" })
-
-                //.RegisterSceneChild<Objects.EnemyHitRegistrator>("enemy_hit", new())
-                //.RegisterSceneChild<Objects.DamageHolder>("hit_holder", new() { "enemy_hit" })
-
-                //.RegisterSceneChild<Objects.Enemy>("enemy", new() { "enemy_animator", "enemy_collision", "damage_holder", "hit_holder" })
-
-
                 .RegisterSceneChild<Engine.EngineAnimator>("player_animator", new())
                 .RegisterSceneChild<Engine.EngineBoxStaticCollision>("player_collision", new())
 
@@ -105,12 +78,12 @@ namespace PracticeWork
             for (int i = 0; i < enemy_count; i++) 
             {
                 scene_builder
-                    .RegisterSceneConfiguration<double>("enemy" + i, "MovementSpeed", 4)
+                    .RegisterSceneConfiguration<double>("enemy" + i, "MovementSpeed", max_enemy_speed)
                     .RegisterSceneConfiguration<Size>("enemy" + i, "ObjectGeometry", new Size(50, 50))
-                    .RegisterSceneConfiguration<Point>("enemy" + i, "ObjectPosition", new Point(0, 100))
                     .RegisterSceneConfiguration<double>("enemy" + i, "TargetUpdateSpeed", 0.1)
                     .RegisterSceneConfiguration<Size>("enemy_collision" + i, "ObjectGeometry", new Size(50, 40))
                     .RegisterSceneConfiguration<Point>("enemy_collision" + i, "ObjectPosition", new Point(0, 10))
+                    .RegisterSceneConfiguration<bool>("enemy_collision" + i, "BorderDraw", debug_mode)
                     .RegisterSceneConfiguration<List<Type>>("enemy_collision" + i, "TypesForCollide", new() { typeof(Player), typeof(Enemy) })
                     .RegisterSceneConfiguration<List<Type>>("enemy_hit" + i, "TypesForCollide", new() { typeof(Objects.DamageHolder) })
                     .RegisterSceneConfiguration<Dictionary<string, string>>("enemy_animator" + i, "AnimationsContainer", new()
@@ -141,14 +114,18 @@ namespace PracticeWork
 
             scene_builder
                 .RegisterSceneChild<Objects.EnemyManager>("enemy_manager", eneme_manager_children)
-                .RegisterSceneChild<Engine.EngineSprite>("border", new());
+
+                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall1", new())
+                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall2", new())
+                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall3", new())
+                .RegisterSceneChild<Engine.EngineBoxStaticCollision>("border_wall4", new())
+                .RegisterSceneChild<Engine.EngineSprite>("border_sprite", new())
+                .RegisterSceneChild<Objects.LevelWallContainer>("border", new() { "border_sprite", "border_wall1",
+                    "border_wall2", "border_wall3", "border_wall4"});
 
             var scene = scene_builder.BuildScene();
 
-            scene.GetSceneObject("player").SetPosition(512, 380);
-            scene.GetSceneObject("damage_holder_player").SetPosition(new(-10, 10));
-
-            scene.RunSceneHandler(15);
+            scene.RunSceneHandler(15, () => { this.Close(); });
         }
 
 

@@ -177,26 +177,27 @@ namespace PracticeWork.Objects
 
         public override void UpdateOperation(IEngineScene scene_instance)
         {
-            bool update_time = true;
-
-            foreach(var item in this.enemies)
+            foreach (var item in this.enemies)
             {
                 Objects.Enemy enemy = item.EnemyInstance;
-
-                if (!enemy.IsAlive) enemy.SetPosition(item.EnemyStartPosition.X, item.EnemyStartPosition.Y);
-                else update_time = false;
-            }
-
-            if (update_time)
-            {
-                foreach (var item in this.enemies)
+                if (!enemy.IsAlive)
                 {
-                    if (item.EnemyInstance.IsReadyToRefresh) item.EnemyInstance.Refresh();
+                    enemy.SetPosition(item.EnemyStartPosition.X, item.EnemyStartPosition.Y);
+                    enemy.Refresh();
                 }
             }
         }
 
         public override void PaintingOperation(Graphics graphic) { return; }
     }
+
+    public sealed class LevelWallContainer : Engine.EngineObject
+    {
+        [Engine.EngineObjectConstructorSelecter]
+        public LevelWallContainer(string object_name) : base(object_name) { }
+
+        public override void PaintingOperation(Graphics graphic) { return; }
+    }
 }
+
 
