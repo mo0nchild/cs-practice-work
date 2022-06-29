@@ -39,6 +39,7 @@ namespace PracticeWork.Objects
             this.hit_registrator = (PlayerHitRegistrator)(this.LinkedScene?.GetSceneObject("player_hit")!);
         }
 
+        public void HealingAction(int heal_value) => this.LifeCount += heal_value;
         public void DamageRegistration()
         {
             if (this.IsAlive)
@@ -50,7 +51,6 @@ namespace PracticeWork.Objects
                 }
                 else this.player_animator?.PlayAnimation("damage_animation", false);
             }
-            
         }
 
         public override void UpdateOperation(IEngineScene scene_instance)

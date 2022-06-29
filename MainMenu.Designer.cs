@@ -41,12 +41,15 @@
             this.playerspeed_label = new System.Windows.Forms.Label();
             this.enemyspeed_label = new System.Windows.Forms.Label();
             this.play_button = new System.Windows.Forms.Button();
+            this.chestspawn_label = new System.Windows.Forms.Label();
+            this.chestspawn_numeric = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.player_picturebox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.enemy_picturebox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.enemycount_numeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.playerlife_numeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.enemyspeed_numeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.playerspeed_numeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chestspawn_numeric)).BeginInit();
             this.SuspendLayout();
             // 
             // player_picturebox
@@ -75,13 +78,13 @@
             this.main_logo.BackColor = System.Drawing.Color.Transparent;
             this.main_logo.Cursor = System.Windows.Forms.Cursors.No;
             this.main_logo.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.main_logo.Font = new System.Drawing.Font("Arial", 48F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.main_logo.Font = new System.Drawing.Font("Arial", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.main_logo.ForeColor = System.Drawing.Color.DarkRed;
-            this.main_logo.Location = new System.Drawing.Point(110, 13);
+            this.main_logo.Location = new System.Drawing.Point(135, 20);
             this.main_logo.Name = "main_logo";
-            this.main_logo.Size = new System.Drawing.Size(263, 75);
+            this.main_logo.Size = new System.Drawing.Size(211, 56);
             this.main_logo.TabIndex = 2;
-            this.main_logo.Text = "Zombiu";
+            this.main_logo.Text = "Vampire";
             // 
             // enemycount_numeric
             // 
@@ -191,7 +194,7 @@
             this.debug_checkbox.BackColor = System.Drawing.Color.Transparent;
             this.debug_checkbox.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.debug_checkbox.ForeColor = System.Drawing.SystemColors.Control;
-            this.debug_checkbox.Location = new System.Drawing.Point(347, 246);
+            this.debug_checkbox.Location = new System.Drawing.Point(349, 309);
             this.debug_checkbox.Name = "debug_checkbox";
             this.debug_checkbox.Size = new System.Drawing.Size(75, 25);
             this.debug_checkbox.TabIndex = 7;
@@ -258,11 +261,50 @@
             this.play_button.UseVisualStyleBackColor = true;
             this.play_button.Click += new System.EventHandler(this.play_button_Click);
             // 
+            // chestspawn_label
+            // 
+            this.chestspawn_label.AutoSize = true;
+            this.chestspawn_label.BackColor = System.Drawing.Color.Transparent;
+            this.chestspawn_label.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.chestspawn_label.ForeColor = System.Drawing.Color.White;
+            this.chestspawn_label.Location = new System.Drawing.Point(349, 213);
+            this.chestspawn_label.Name = "chestspawn_label";
+            this.chestspawn_label.Size = new System.Drawing.Size(94, 19);
+            this.chestspawn_label.TabIndex = 14;
+            this.chestspawn_label.Text = "Chest spawn: ";
+            // 
+            // chestspawn_numeric
+            // 
+            this.chestspawn_numeric.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.chestspawn_numeric.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.chestspawn_numeric.Location = new System.Drawing.Point(349, 241);
+            this.chestspawn_numeric.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.chestspawn_numeric.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.chestspawn_numeric.Name = "chestspawn_numeric";
+            this.chestspawn_numeric.Size = new System.Drawing.Size(96, 25);
+            this.chestspawn_numeric.TabIndex = 13;
+            this.chestspawn_numeric.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.chestspawn_numeric.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+            // 
             // MainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(484, 361);
+            this.Controls.Add(this.chestspawn_label);
+            this.Controls.Add(this.chestspawn_numeric);
             this.Controls.Add(this.play_button);
             this.Controls.Add(this.playerspeed_label);
             this.Controls.Add(this.enemyspeed_label);
@@ -280,13 +322,14 @@
             this.MaximumSize = new System.Drawing.Size(500, 400);
             this.MinimumSize = new System.Drawing.Size(500, 400);
             this.Name = "MainMenu";
-            this.Text = "Zombiu";
+            this.Text = "Vampire";
             ((System.ComponentModel.ISupportInitialize)(this.player_picturebox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.enemy_picturebox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.enemycount_numeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.playerlife_numeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.enemyspeed_numeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.playerspeed_numeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chestspawn_numeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -307,5 +350,7 @@
         private Label playerspeed_label;
         private Label enemyspeed_label;
         private Button play_button;
+        private Label chestspawn_label;
+        private NumericUpDown chestspawn_numeric;
     }
 }

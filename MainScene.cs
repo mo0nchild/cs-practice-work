@@ -8,13 +8,10 @@ namespace PracticeWork
     {
         public System.Int32 EnemyCount { get; set; } = 5;
         public System.Int32 PlayerLife { get; set; } = 3;
+        public System.Int32 ChestSpawn { get; set; } = 30;
         public System.Double MaxEnemySpeed { get; set; } = 4.0;
         public System.Double PlayerSpeed { get; set; } = 4.0;
         public System.Boolean DebugMode { get; set; } = false;
-
-        //public const int enemy_count = 5, player_life = 5;
-        //public const double max_enemy_speed = 4.0, player_speed = 4.0;
-        //public const bool debug_mode = true;
 
         public MainScene()
         {
@@ -32,6 +29,7 @@ namespace PracticeWork
         private void SceneOnLoadAction(object? sender, EventArgs e)
         {
             Engine.EngineSceneBuilder scene_builder = new("Scene", this.main_panel!);
+            scene_builder.AddChestSupport(ChestSpawn, DebugMode);
             scene_builder.AddPlayer(DebugMode, PlayerLife, PlayerSpeed);
 
             List<string> eneme_manager_children = new();
@@ -40,7 +38,6 @@ namespace PracticeWork
             for (int i = 0; i < EnemyCount; i++)
             {
                 scene_builder.AddEnemy(DebugMode, i, MaxEnemySpeed);
-
                 eneme_manager_children.Add("enemy" + i);
             }
 

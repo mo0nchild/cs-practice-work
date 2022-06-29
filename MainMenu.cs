@@ -34,7 +34,8 @@ namespace PracticeWork
                 EnemyCount = (int)this.enemycount_numeric.Value,
                 MaxEnemySpeed = (double)this.enemyspeed_numeric.Value,
 
-                DebugMode = this.debug_checkbox.Checked
+                DebugMode = this.debug_checkbox.Checked,
+                ChestSpawn = (int)this.chestspawn_numeric.Value
             };
 
             form.ShowDialog();

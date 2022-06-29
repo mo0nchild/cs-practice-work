@@ -44,7 +44,7 @@
         {
             this.SuspendLayout();
             // 
-            // MainForm
+            // MainScene
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -52,8 +52,8 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximumSize = new System.Drawing.Size(1024, 768);
             this.MinimumSize = new System.Drawing.Size(1024, 768);
-            this.Name = "MainForm";
-            this.Text = "Zombiu";
+            this.Name = "MainScene";
+            this.Text = "Vampire";
             this.ResumeLayout(false);
 
         }
