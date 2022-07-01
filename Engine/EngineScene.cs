@@ -110,7 +110,6 @@ namespace PracticeWork.Engine
         private readonly Win::Forms.Panel panel_node_instance;
         private event UpdateOperationHandling? UpdateHandling = default;
 
-        public System.Double UpdateDelay { get; init; } = 500.0;
         public System.String SceneName { get; init; } = "Scene";
         public System.Boolean IsExit { get; private set; } = false;
 
